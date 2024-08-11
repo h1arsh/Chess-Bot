@@ -1,0 +1,287 @@
+.chessboard-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    margin: 120px;
+}
+
+/* History box styling */
+#moveHistoryTextarea {
+    background-color: #1f2937; /* Dark background */
+    color: #f3f4f6; /* Light text color */
+    border: 1px solid #374151; /* Border color */
+    padding: 20px;
+    border-radius: 8px; /* Rounded corners */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    margin-bottom: 80px;
+    max-width: 400px;
+    height: 400px; /* Fixed height */
+    font-family: 'Roboto', sans-serif; /* Professional font */
+    resize: none; /* Disable resizing */
+    overflow-y: auto; /* Make it scrollable */
+    font-size: 16px; /* Increase font size for readability */
+    line-height: 1.5; /* Increase line height for better readability */
+    outline: none; /* Remove outline */
+    transition: box-shadow 0.3s ease; /* Smooth transition for focus effect */
+}
+
+/* Focus effect for the history box */
+#moveHistoryTextarea:focus {
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2); /* Slightly more prominent shadow */
+    border-color: #4b5563; /* Slightly lighter border color on focus */
+}
+
+/* Timer Styling */
+.timer {
+    color: white;
+    font-size: 2rem;
+    font-weight: bold;
+    z-index: 10;
+    position: absolute;
+}
+
+#black-timer {
+    top: -80px; /* Position above the chessboard */
+    right: 0; /* Align to the right edge of the chessboard */
+    padding-left: 10px;
+    padding-right: 10px;
+    border-radius: 5px;
+}
+
+#white-timer {
+    bottom: -80px; /* Position below the chessboard */
+    left: 0; /* Align to the left edge of the chessboard */
+    padding-left: 10px;
+    padding-right: 10px;
+    border-radius: 5px;
+}
+
+.files-labels, .ranks-labels {
+    display: flex;
+    color: #ffffff;
+    font-weight: 600;
+    font-family: Arial, sans-serif;
+    pointer-events: none;
+    position: absolute;
+}
+
+.files-labels {
+    justify-content: space-between;
+    width: 100%;
+    bottom: -50px; /* Adjust the value to align properly */
+    left: 0;
+}
+
+.ranks-labels {
+    justify-content: space-between;
+    height: 100%;
+    top: 0;
+    left: -50px; /* Adjust the value to align properly */
+    flex-direction: column;
+}
+
+.files-labels div, .ranks-labels div {
+    text-align: center;
+    width: 50px;  /* Matches the width of the squares */
+    height: 50px; /* Matches the height of the squares */
+    line-height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.chessboard {
+    display: grid;
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+    grid-template-rows: repeat(8, minmax(0, 1fr));
+    width: 480px; /* Chess.com board is typically slightly larger */
+    height: 480px;
+    border: 2px solid #333;
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.7);
+    position: relative;
+}
+
+.square {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.square.light {
+    background-color: #ededce; /* Light square color similar to Chess.com */
+}
+
+.square.dark {
+    background-color: #769656; /* Dark square color similar to Chess.com */
+}
+
+.piece {
+    cursor: pointer;
+}
+
+.piece.draggable {
+    cursor: grab;
+}
+
+.dragging {
+    opacity: 0.6;
+}
+
+.flipped {
+    transform: rotate(180deg);
+}
+
+/* Rotate labels and pieces for the black player */
+.flipped .files-labels {
+    transform: rotate(180deg);
+}
+
+.flipped .ranks-labels {
+    transform: rotate(180deg);
+}
+
+.flipped .piece {
+    transform: rotate(180deg);
+}
+
+.promotion-container {
+    display: flex;
+    background: rgba(0, 0, 0, 0.8);
+    border-radius: 8px;
+    padding: 5px;
+    z-index: 10;
+    position: absolute;
+    transform: translate(-50%, -50%); /* Center the container on the pawn */
+}
+
+.promotion-button {
+    margin: 0 5px;
+    width: 50px;
+    height: 50px;
+    cursor: pointer;
+    color: white;
+    background: none;
+    border: none;
+    padding: 0;
+    transition: transform 0.2s;
+}
+
+.promotion-button:hover {
+    transform: scale(1.1);
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+    #moveHistoryTextarea {
+        height: 250px; /* Reduce height on smaller screens */
+        max-width: 200px; /* Reduce width on smaller screens */
+        padding: 8px; /* Reduce padding on smaller screens */
+    }
+
+    .timer {
+        font-size: 1.25rem; /* Smaller font size for medium screens */
+    }
+
+    #black-timer, #white-timer {
+        top: -40px; /* Adjust top for smaller screens */
+        bottom: -40px; /* Adjust bottom for smaller screens */
+    }
+
+    .files-labels div, .ranks-labels div {
+        width: 25px; /* Adjust for smaller screens */
+        height: 25px;
+        line-height: 25px;
+    }
+
+    .chessboard {
+        width: 240px; /* Smaller chessboard for smaller screens */
+        height: 240px;
+    }
+
+    .piece {
+        font-size: 20px; /* Adjust piece size for smaller screens */
+    }
+
+    .files-labels {
+        bottom: -25px; /* Adjust label position for smaller screens */
+    }
+
+    .ranks-labels {
+        left: -25px; /* Adjust label position for smaller screens */
+    }
+
+    .promotion-container {
+        padding: 3px;
+    }
+
+    .promotion-button {
+        height: 30px;
+        width: 30px;
+        margin: 0 3px;
+    }
+}
+
+@media (max-width: 480px) {
+    #moveHistoryTextarea {
+        height: 200px; /* Further reduce height on very small screens */
+        max-width: 100px; /* Further reduce width on very small screens */
+        padding: 6px; /* Further reduce padding on very small screens */
+        font-size: 12px; /* Smaller font size for very small screens */
+    }
+
+    .timer {
+        font-size: 0.75rem; /* Even smaller font size for very small screens */
+    }
+
+    #black-timer, #white-timer {
+        top: -30px; /* Adjust top for very small screens */
+        bottom: -30px; /* Adjust bottom for very small screens */
+    }
+
+    .files-labels div, .ranks-labels div {
+        width: 20px; /* Further adjustment for very small screens */
+        height: 20px;
+        line-height: 20px;
+    }
+
+    .chessboard {
+        width: 200px; /* Further reduction in chessboard size */
+        height: 200px;
+    }
+
+    .piece {
+        font-size: 16px; /* Further reduction in piece size */
+    }
+
+    .files-labels {
+        bottom: -20px; /* Further adjustment for label position */
+    }
+
+    .ranks-labels {
+        left: -20px; /* Further adjustment for label position */
+    }
+
+    .promotion-container {
+        display: flex;
+        background: rgba(0, 0, 0, 0.8);
+        padding: 2px;
+        z-index: 10;
+        position: absolute; /* Change to absolute for correct positioning */
+    }
+
+    .promotion-button {
+        margin: 0 2px;
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+        color: white;
+        background: none;
+        border: none;
+        transition: transform 0.2s;
+    }
+
+    .promotion-button:hover {
+        transform: scale(1.2);
+    }
+}

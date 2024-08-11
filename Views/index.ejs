@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chess Game</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="flex flex-col items-center justify-center bg-zinc-900">
+        <div class="chessboard-container flex flex-col items-center">
+            <!-- Black Timer (at the top) -->
+            <div id="black-timer" class="timer bg-zinc-500">10:00</div>
+            <div class="ranks-labels flex flex-col justify-between">
+                <div>8</div>
+                <div>7</div>
+                <div>6</div>
+                <div>5</div>
+                <div>4</div>
+                <div>3</div>
+                <div>2</div>
+                <div>1</div>
+            </div>
+            <div class="chessboard">
+                <!-- Chessboard squares and pieces will be placed here dynamically -->
+            </div>
+            <div class="files-labels flex justify-between">
+                <div>A</div>
+                <div>B</div>
+                <div>C</div>
+                <div>D</div>
+                <div>E</div>
+                <div>F</div>
+                <div>G</div>
+                <div>H</div>
+            </div>
+            <!-- White Timer (at the bottom) -->
+            <div id="white-timer" class="timer bg-zinc-500">10:00</div>
+        </div>
+        <button type="button" onclick="window.location.href='/'" class="text-gray-900 bg-gradient-to-r from-red-200 via-red-300 to-yellow-200 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-red-100 dark:focus:ring-red-400 font-medium rounded-lg text-sm px-5 py-2.5 text-center mt-4">Reset</button>
+        <!-- Move History Textarea (below the chessboard) -->
+        <div class="w-full flex justify-center mt-4">
+            <textarea id="moveHistoryTextarea" class="w-full max-w-md p-2 bg-gray-800 text-white rounded-lg" placeholder="Move history..." readonly></textarea>
+        </div>
+    </div>
+
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js" 
+    integrity="sha384-2huaZvOR9iDzHqslqwpR87isEmrfxqyWOF7hr7BY6KG0+hVKLoEXMPUJw3ynWuhO" 
+    crossorigin="anonymous"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js" integrity="sha512-xRllwz2gdZciIB+AkEbeq+gVhX8VB8XsfqeFbUh+SzHlN96dEduwtTuVuc2u9EROlmW9+yhRlxjif66ORpsgVA==" 
+    crossorigin="anonymous" 
+    referrerpolicy="no-referrer"></script>
+
+    <script src="/js/chessgame.js"></script>
+</body>
+</html>
