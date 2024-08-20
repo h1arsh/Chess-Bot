@@ -131,14 +131,6 @@ function handleDrop(e) {
             col: parseInt(e.currentTarget.dataset.col),
         };
 
-        // Check if the target square has an opponent's piece
-        const targetSquareElement = e.currentTarget;
-        const targetPieceElement = targetSquareElement.querySelector('.piece');
-
-        if (targetPieceElement && targetPieceElement.classList.contains(playerColor === 'w' ? 'black' : 'white')) {
-            // Capturing opponent's piece
-            targetSquareElement.removeChild(targetPieceElement);
-        }
         handleMove(sourceSquare, targetSquare);
     }
 }
@@ -164,14 +156,7 @@ function handleTouchEnd(e) {
         handleMove(sourceSquare, { row, col });
     }
 
-    // Reset the dragged piece's position
-    draggedPiece.style.position = "";
-    draggedPiece.style.left = "";
-    draggedPiece.style.top = "";
-
-    // Reset dragging variables
-    draggedPiece = null;
-    sourceSquare = null;
+    resetDraggedPiecePosition();
 }
 
 
@@ -209,6 +194,7 @@ function makeMove(move) {
     socket.emit('move', move,);
     playSoundForMove(move);
     updateMoveHistory(move);
+    renderBoard();
     checkGameStatus();
     // Handle AI move after player move
     handleAIMove();
@@ -230,6 +216,14 @@ function playSoundForMove(move) {
     if (chess.in_check()) {
         sounds.check.play();
     }
+}
+
+function resetDraggedPiecePosition() {
+    draggedPiece.style.position = "";
+    draggedPiece.style.left = "";
+    draggedPiece.style.top = "";
+    draggedPiece = null;
+    sourceSquare = null;
 }
 
 function updateMoveHistory(move) {
