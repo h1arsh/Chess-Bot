@@ -129,13 +129,20 @@ function createPieceElement(square, rowIndex, colIndex) {
                 const targetRow = parseInt(targetSquare.dataset.row);
                 const targetCol = parseInt(targetSquare.dataset.col);
     
-                // Check if the target square contains an opponent's piece
-                const targetPiece = targetSquare.querySelector(".piece");
+                // Ensure the move is legal by checking with chess.js
+                const move = {
+                    from: `${String.fromCharCode(97 + sourceSquare.col)}${8 - sourceSquare.row}`,
+                    to: `${String.fromCharCode(97 + targetCol)}${8 - targetRow}`,
+                    promotion: null, // handle promotion later if needed
+                };
     
-                if (targetPiece && targetPiece !== draggedPiece) {
+                // Validate the move with chess.js
+                if (chess.move(move)) {
+                    // Valid move, so handle the move
                     handleMove(sourceSquare, { row: targetRow, col: targetCol });
-                } else if (!targetPiece) {
-                    handleMove(sourceSquare, { row: targetRow, col: targetCol });
+                } else {
+                    // Invalid move, reset piece position
+                    sounds.illegal.play();
                 }
             }
     
@@ -146,6 +153,7 @@ function createPieceElement(square, rowIndex, colIndex) {
         }
         e.preventDefault();
     });
+    
     
 
     return pieceElement;
