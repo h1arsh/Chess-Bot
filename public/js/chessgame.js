@@ -130,6 +130,15 @@ function handleDrop(e) {
             row: parseInt(e.currentTarget.dataset.row),
             col: parseInt(e.currentTarget.dataset.col),
         };
+
+        // Check if the target square has an opponent's piece
+        const targetSquareElement = e.currentTarget;
+        const targetPieceElement = targetSquareElement.querySelector('.piece');
+
+        if (targetPieceElement && targetPieceElement.classList.contains(playerColor === 'w' ? 'black' : 'white')) {
+            // Capturing opponent's piece
+            targetSquareElement.removeChild(targetPieceElement);
+        }
         handleMove(sourceSquare, targetSquare);
     }
 }
@@ -180,10 +189,13 @@ function handleMove(source, target) {
             makeMove(move);
         });
     } else {
-        if (chess.move(move)) {
+        const moveResult = chess.move(move);
+        if (moveResult) {
             makeMove(move);
         } else {
             sounds.illegal.play();
+            // Revert dragged piece to its original position if the move is illegal
+            renderBoard();
         }
     }
 }
