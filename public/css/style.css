@@ -184,8 +184,8 @@
     }
 
     #black-timer, #white-timer {
-        top: -40px; /* Adjust top for smaller screens */
-        bottom: -40px; /* Adjust bottom for smaller screens */
+        top: auto;
+        bottom: auto;
     }
 
     .files-labels div, .ranks-labels div {
@@ -235,8 +235,8 @@
     }
 
     #black-timer, #white-timer {
-        top: -30px; /* Adjust top for very small screens */
-        bottom: -30px; /* Adjust bottom for very small screens */
+        top: auto;
+        bottom: auto;
     }
 
     .files-labels div, .ranks-labels div {

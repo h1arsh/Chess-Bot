@@ -22,7 +22,6 @@ let whiteTime = 600;
 let blackTime = 600;
 let promotionUI = null;
 let moveCount = 0; // Track move count for history
-let selectedDepth = 10; // Default depth
 
 // Event Listeners
 socket.on('connect', () => console.log('Connected to server'));
@@ -31,6 +30,12 @@ socket.on('move', handleOpponentMove);
 socket.on('boardState', loadBoardState);
 socket.on('updatetimer', updateTimers);
 socket.on('gameover', endGame);
+socket.on('resetBoard', () => {
+    const moveHistoryTextarea = document.getElementById("moveHistoryTextarea");
+    moveHistoryTextarea.value = ""; // Clear move history
+    moveCount = 0; // Reset move count
+    renderBoard(); // Render the new board
+});
 
 document.addEventListener('DOMContentLoaded', () => {
     sounds.gameStart.play();
@@ -68,6 +73,17 @@ function createSquareElement(rowIndex, colIndex, square) {
 
     squareElement.addEventListener("dragover", (e) => e.preventDefault());
     squareElement.addEventListener("drop", handleDrop);
+    
+    // Touch events for mobile
+    squareElement.addEventListener("touchend", (e) => {
+        if (draggedPiece) {
+            const targetSquare = {
+                row: parseInt(e.currentTarget.dataset.row),
+                col: parseInt(e.currentTarget.dataset.col),
+            };
+            handleMove(sourceSquare, targetSquare);
+        }
+    });
 
     return squareElement;
 }
@@ -89,6 +105,43 @@ function createPieceElement(square, rowIndex, colIndex) {
     pieceElement.addEventListener("dragend", () => {
         draggedPiece = null;
         sourceSquare = null;
+    });
+
+    // Mobile touch events
+    pieceElement.addEventListener("touchstart", (e) => {
+        if (pieceElement.draggable) {
+            draggedPiece = pieceElement;
+            sourceSquare = { row: rowIndex, col: colIndex };
+            e.preventDefault(); // Prevent mouse event from also triggering
+        }
+    });
+
+    pieceElement.addEventListener("touchmove", (e) => {
+        if (draggedPiece) {
+            const touch = e.touches[0];
+            draggedPiece.style.position = "absolute";
+            draggedPiece.style.left = `${touch.pageX - 25}px`;
+            draggedPiece.style.top = `${touch.pageY - 25}px`;
+        }
+    });
+
+    pieceElement.addEventListener("touchend", (e) => {
+        if (draggedPiece) {
+            const touch = e.changedTouches[0];
+            const targetElement = document.elementFromPoint(touch.clientX, touch.clientY);
+            if (targetElement && targetElement.classList.contains("square")) {
+                const targetSquare = {
+                    row: parseInt(targetElement.dataset.row),
+                    col: parseInt(targetElement.dataset.col),
+                };
+                handleMove(sourceSquare, targetSquare);
+            }
+            draggedPiece.style.position = ""; // Reset piece position
+            draggedPiece.style.left = "";
+            draggedPiece.style.top = "";
+            draggedPiece = null;
+            sourceSquare = null;
+        }
     });
 
     return pieceElement;
@@ -129,12 +182,11 @@ function handleMove(source, target) {
 
 function isPawnPromotion(move) {
     const piece = chess.get(move.from);
-    return piece.type === 'p' && (move.to[1] === '1' || move.to[1] === '8');
+    return piece.type === 'p' && ((chess.turn() === 'b' && move.to[1] === '1') || (chess.turn() === 'w' && move.to[1] === '8'));
 }
 
 function makeMove(move) {
-    const depth = selectedDepth; // Use the selected depth
-    socket.emit('move', { move, depth });
+    socket.emit('move', move,);
     playSoundForMove(move);
     updateMoveHistory(move);
     checkGameStatus();

@@ -53,9 +53,8 @@ io.on("connection", (uniquesocket) => {
 
     uniquesocket.emit("playerRole", playerRole);
 
-    uniquesocket.on("move", async ({ move, depth }) => {
+    uniquesocket.on("move", async ( move) => {
         console.log("Received move:", move);
-        console.log("depth : ", depth);
 
         if (chess.turn() !== 'w') {
             console.log("It's not your turn");
@@ -80,7 +79,7 @@ io.on("connection", (uniquesocket) => {
             return;
         }
 
-        const aiMove = await getBestMoveFromAI(chess.fen(), depth); // Pass the selected depth
+        const aiMove = await getBestMoveFromAI(chess.fen()); // Pass the selected depth
         if (aiMove) {
             const aiResult = chess.move({
                 from: aiMove.slice(0, 2),
@@ -118,12 +117,12 @@ io.on("connection", (uniquesocket) => {
     });
 });
 
-const getBestMoveFromAI = async (fen, depth ) => {
+const getBestMoveFromAI = async (fen ) => {
     try {
         const response = await axios.get('https://stockfish.online/api/s/v2.php', {
             params: {
                 fen: fen,
-                depth: depth,  // Use the selected depth value
+                depth: 15,  // Use the selected depth value
             },
         });
 
