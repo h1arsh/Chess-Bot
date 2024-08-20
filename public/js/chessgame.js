@@ -73,18 +73,9 @@ function createSquareElement(rowIndex, colIndex, square) {
 
     squareElement.addEventListener("dragover", (e) => e.preventDefault());
     squareElement.addEventListener("drop", handleDrop);
+    squareElement.addEventListener("touchmove", handleTouchMove, { passive: false });
+    squareElement.addEventListener("touchend", handleTouchEnd);
     
-    // Touch events for mobile
-    squareElement.addEventListener("touchend", (e) => {
-        if (draggedPiece) {
-            const targetSquare = {
-                row: parseInt(e.currentTarget.dataset.row),
-                col: parseInt(e.currentTarget.dataset.col),
-            };
-            handleMove(sourceSquare, targetSquare);
-        }
-    });
-
     return squareElement;
 }
 
@@ -107,40 +98,11 @@ function createPieceElement(square, rowIndex, colIndex) {
         sourceSquare = null;
     });
 
-    // Mobile touch events
     pieceElement.addEventListener("touchstart", (e) => {
         if (pieceElement.draggable) {
             draggedPiece = pieceElement;
             sourceSquare = { row: rowIndex, col: colIndex };
-            e.preventDefault(); // Prevent mouse event from also triggering
-        }
-    });
-
-    pieceElement.addEventListener("touchmove", (e) => {
-        if (draggedPiece) {
-            const touch = e.touches[0];
-            draggedPiece.style.position = "absolute";
-            draggedPiece.style.left = `${touch.pageX - 25}px`;
-            draggedPiece.style.top = `${touch.pageY - 25}px`;
-        }
-    });
-
-    pieceElement.addEventListener("touchend", (e) => {
-        if (draggedPiece) {
-            const touch = e.changedTouches[0];
-            const targetElement = document.elementFromPoint(touch.clientX, touch.clientY);
-            if (targetElement && targetElement.classList.contains("square")) {
-                const targetSquare = {
-                    row: parseInt(targetElement.dataset.row),
-                    col: parseInt(targetElement.dataset.col),
-                };
-                handleMove(sourceSquare, targetSquare);
-            }
-            draggedPiece.style.position = ""; // Reset piece position
-            draggedPiece.style.left = "";
-            draggedPiece.style.top = "";
-            draggedPiece = null;
-            sourceSquare = null;
+            e.preventDefault();
         }
     });
 
@@ -156,6 +118,34 @@ function handleDrop(e) {
         };
         handleMove(sourceSquare, targetSquare);
     }
+}
+
+function handleTouchMove(e) {
+    e.preventDefault();
+    if (draggedPiece) {
+        const touch = e.touches[0];
+        draggedPiece.style.position = 'absolute';
+        draggedPiece.style.left = `${touch.clientX - draggedPiece.offsetWidth / 2}px`;
+        draggedPiece.style.top = `${touch.clientY - draggedPiece.offsetHeight / 2}px`;
+    }
+}
+
+function handleTouchEnd(e) {
+    const targetSquare = document.elementFromPoint(e.changedTouches[0].clientX, e.changedTouches[0].clientY);
+    if (targetSquare && targetSquare.classList.contains('square')) {
+        const target = {
+            row: parseInt(targetSquare.dataset.row),
+            col: parseInt(targetSquare.dataset.col),
+        };
+        handleMove(sourceSquare, target);
+    }
+    if (draggedPiece) {
+        draggedPiece.style.position = '';
+        draggedPiece.style.left = '';
+        draggedPiece.style.top = '';
+    }
+    draggedPiece = null;
+    sourceSquare = null;
 }
 
 function handleMove(source, target) {
