@@ -145,6 +145,7 @@ function handleTouchMove(e) {
 
 function handleTouchEnd(e) {
     e.preventDefault();
+
     const touch = e.changedTouches[0];
     const targetSquare = document.elementFromPoint(touch.clientX, touch.clientY);
 
@@ -158,8 +159,12 @@ function handleTouchEnd(e) {
     draggedPiece.style.position = "";
     draggedPiece.style.left = "";
     draggedPiece.style.top = "";
-    endDraggingPiece();
+
+    // Reset dragging variables
+    draggedPiece = null;
+    sourceSquare = null;
 }
+
 
 function handleMove(source, target) {
     const move = {
