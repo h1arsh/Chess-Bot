@@ -73,8 +73,8 @@ function createSquareElement(rowIndex, colIndex, square) {
 
     squareElement.addEventListener("dragover", (e) => e.preventDefault());
     squareElement.addEventListener("drop", handleDrop);
-    squareElement.addEventListener("touchmove", handleTouchMove, { passive: false });
-    squareElement.addEventListener("touchend", handleTouchEnd);
+    // Mobile touch event listeners
+    squareElement.addEventListener("touchmove", (e) => e.preventDefault());
     
     return squareElement;
 }
@@ -83,10 +83,13 @@ function createPieceElement(square, rowIndex, colIndex) {
     const pieceElement = document.createElement("img");
     pieceElement.classList.add("piece", square.color === "w" ? "white" : "black");
     pieceElement.src = getPieceImage(square);
-    pieceElement.draggable = square.color === playerColor;
+
+    // Disable dragging if it's not the player's turn
+    const isPlayerTurn = chess.turn() === playerColor;
+    pieceElement.draggable = isPlayerTurn && square.color === playerColor;
 
     pieceElement.addEventListener("dragstart", (e) => {
-        if (pieceElement.draggable) {
+        if (isPlayerTurn && pieceElement.draggable) {
             draggedPiece = pieceElement;
             sourceSquare = { row: rowIndex, col: colIndex };
             e.dataTransfer.setData("text/plain", "");
@@ -98,29 +101,44 @@ function createPieceElement(square, rowIndex, colIndex) {
         sourceSquare = null;
     });
 
-    // Touch event listeners for mobile
-    pieceElement.addEventListener("touchstart", (e) => handleTouchStart(e, pieceElement, rowIndex, colIndex));
-    pieceElement.addEventListener("touchmove", handleTouchMove);
-    pieceElement.addEventListener("touchend", handleTouchEnd);
+    // Mobile touch event listeners
+    pieceElement.addEventListener("touchstart", (e) => {
+        if (isPlayerTurn && pieceElement.draggable) {
+            draggedPiece = pieceElement;
+            sourceSquare = { row: rowIndex, col: colIndex };
+            e.preventDefault();
+        }
+    });
+
+    pieceElement.addEventListener("touchmove", (e) => {
+        if (isPlayerTurn && draggedPiece) {
+            const touch = e.touches[0];
+            draggedPiece.style.position = "absolute";
+            draggedPiece.style.left = `${touch.pageX - draggedPiece.clientWidth / 2}px`;
+            draggedPiece.style.top = `${touch.pageY - draggedPiece.clientHeight / 2}px`;
+            e.preventDefault();
+        }
+    });
+
+    pieceElement.addEventListener("touchend", (e) => {
+        if (isPlayerTurn && draggedPiece) {
+            const touch = e.changedTouches[0];
+            const targetSquare = document.elementFromPoint(touch.clientX, touch.clientY);
+
+            if (targetSquare && targetSquare.classList.contains("square")) {
+                const targetRow = parseInt(targetSquare.dataset.row);
+                const targetCol = parseInt(targetSquare.dataset.col);
+                handleMove(sourceSquare, { row: targetRow, col: targetCol });
+            }
+
+            draggedPiece.style.position = "static"; // Reset piece position
+            draggedPiece = null;
+            sourceSquare = null;
+        }
+        e.preventDefault();
+    });
 
     return pieceElement;
-}
-
-function handleDragStart(e, pieceElement, rowIndex, colIndex) {
-    if (pieceElement.draggable) {
-        draggedPiece = pieceElement;
-        sourceSquare = { row: rowIndex, col: colIndex };
-        e.dataTransfer.setData("text/plain", "");
-    }
-}
-
-function handleTouchStart(e, pieceElement, rowIndex, colIndex) {
-    if (pieceElement.draggable) {
-        draggedPiece = pieceElement;
-        sourceSquare = { row: rowIndex, col: colIndex };
-        e.preventDefault(); // Prevent the default touch behavior
-        handleTouchMove(e); // Start moving the piece immediately
-    }
 }
 
 function handleDrop(e) {
@@ -130,37 +148,7 @@ function handleDrop(e) {
             row: parseInt(e.currentTarget.dataset.row),
             col: parseInt(e.currentTarget.dataset.col),
         };
-
         handleMove(sourceSquare, targetSquare);
-    }
-}
-
-function handleTouchMove(e) {
-    e.preventDefault(); // Prevent scrolling during drag
-
-    if (draggedPiece) {
-        const touch = e.touches[0];
-        const rect = draggedPiece.getBoundingClientRect();
-        draggedPiece.style.position = "absolute";
-        draggedPiece.style.zIndex = 1000;
-        draggedPiece.style.left = `${touch.pageX - rect.width / 2}px`;
-        draggedPiece.style.top = `${touch.pageY - rect.height / 2}px`;
-    }
-}
-
-function handleTouchEnd(e) {
-    e.preventDefault();
-
-    const touch = e.changedTouches[0];
-    const targetSquareElement = document.elementFromPoint(touch.clientX, touch.clientY);
-
-    if (targetSquareElement && targetSquareElement.classList.contains("square")) {
-        const row = parseInt(targetSquareElement.dataset.row);
-        const col = parseInt(targetSquareElement.dataset.col);
-        handleMove(sourceSquare, { row, col });
-    } else {
-        // If not dropped on a valid square, revert the piece's position
-        resetDraggedPiecePosition();
     }
 }
 
@@ -178,13 +166,10 @@ function handleMove(source, target) {
             makeMove(move);
         });
     } else {
-        const moveResult = chess.move(move);
-        if (moveResult) {
+        if (chess.move(move)) {
             makeMove(move);
         } else {
             sounds.illegal.play();
-            // Revert dragged piece to its original position if the move is illegal
-            renderBoard();
         }
     }
 }
@@ -198,7 +183,6 @@ function makeMove(move) {
     socket.emit('move', move,);
     playSoundForMove(move);
     updateMoveHistory(move);
-    renderBoard();
     checkGameStatus();
     // Handle AI move after player move
     handleAIMove();
@@ -220,15 +204,6 @@ function playSoundForMove(move) {
     if (chess.in_check()) {
         sounds.check.play();
     }
-}
-
-function resetDraggedPiecePosition() {
-    draggedPiece.style.position = "";
-    draggedPiece.style.zIndex = "";
-    draggedPiece.style.left = "";
-    draggedPiece.style.top = "";
-    draggedPiece = null;
-    sourceSquare = null;
 }
 
 function updateMoveHistory(move) {
