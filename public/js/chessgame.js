@@ -124,19 +124,29 @@ function createPieceElement(square, rowIndex, colIndex) {
         if (isPlayerTurn && draggedPiece) {
             const touch = e.changedTouches[0];
             const targetSquare = document.elementFromPoint(touch.clientX, touch.clientY);
-
+    
             if (targetSquare && targetSquare.classList.contains("square")) {
                 const targetRow = parseInt(targetSquare.dataset.row);
                 const targetCol = parseInt(targetSquare.dataset.col);
-                handleMove(sourceSquare, { row: targetRow, col: targetCol });
+    
+                // Check if the target square contains an opponent's piece
+                const targetPiece = targetSquare.querySelector(".piece");
+    
+                if (targetPiece && targetPiece !== draggedPiece) {
+                    handleMove(sourceSquare, { row: targetRow, col: targetCol });
+                } else if (!targetPiece) {
+                    handleMove(sourceSquare, { row: targetRow, col: targetCol });
+                }
             }
-
-            draggedPiece.style.position = "static"; // Reset piece position
+    
+            // Reset piece position
+            draggedPiece.style.position = "static";
             draggedPiece = null;
             sourceSquare = null;
         }
         e.preventDefault();
     });
+    
 
     return pieceElement;
 }
