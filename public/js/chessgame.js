@@ -98,11 +98,25 @@ function createPieceElement(square, rowIndex, colIndex) {
         sourceSquare = null;
     });
 
+    // Handle touch events for mobile
     pieceElement.addEventListener("touchstart", (e) => {
         if (pieceElement.draggable) {
             draggedPiece = pieceElement;
             sourceSquare = { row: rowIndex, col: colIndex };
-            e.preventDefault();
+            e.dataTransfer?.setData("text/plain", ""); // For dragstart events
+            e.preventDefault(); // Prevent default touch behavior
+        }
+    });
+
+    pieceElement.addEventListener("touchmove", (e) => {
+        if (draggedPiece) {
+            handleTouchMove(e);
+        }
+    });
+
+    pieceElement.addEventListener("touchend", (e) => {
+        if (draggedPiece) {
+            handleTouchEnd(e);
         }
     });
 
@@ -121,31 +135,30 @@ function handleDrop(e) {
 }
 
 function handleTouchMove(e) {
-    e.preventDefault();
-    if (draggedPiece) {
-        const touch = e.touches[0];
-        draggedPiece.style.position = 'absolute';
-        draggedPiece.style.left = `${touch.clientX - draggedPiece.offsetWidth / 2}px`;
-        draggedPiece.style.top = `${touch.clientY - draggedPiece.offsetHeight / 2}px`;
-    }
+    e.preventDefault(); // Prevent scrolling during drag
+
+    const touch = e.touches[0];
+    draggedPiece.style.position = "absolute";
+    draggedPiece.style.left = `${touch.pageX - draggedPiece.offsetWidth / 2}px`;
+    draggedPiece.style.top = `${touch.pageY - draggedPiece.offsetHeight / 2}px`;
 }
 
 function handleTouchEnd(e) {
-    const targetSquare = document.elementFromPoint(e.changedTouches[0].clientX, e.changedTouches[0].clientY);
-    if (targetSquare && targetSquare.classList.contains('square')) {
-        const target = {
-            row: parseInt(targetSquare.dataset.row),
-            col: parseInt(targetSquare.dataset.col),
-        };
-        handleMove(sourceSquare, target);
+    e.preventDefault();
+    const touch = e.changedTouches[0];
+    const targetSquare = document.elementFromPoint(touch.clientX, touch.clientY);
+
+    if (targetSquare && targetSquare.classList.contains("square")) {
+        const row = parseInt(targetSquare.dataset.row);
+        const col = parseInt(targetSquare.dataset.col);
+        handleMove(sourceSquare, { row, col });
     }
-    if (draggedPiece) {
-        draggedPiece.style.position = '';
-        draggedPiece.style.left = '';
-        draggedPiece.style.top = '';
-    }
-    draggedPiece = null;
-    sourceSquare = null;
+
+    // Reset the dragged piece's position
+    draggedPiece.style.position = "";
+    draggedPiece.style.left = "";
+    draggedPiece.style.top = "";
+    endDraggingPiece();
 }
 
 function handleMove(source, target) {
