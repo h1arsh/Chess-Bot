@@ -148,7 +148,7 @@ function handleTouchStart(e) {
 function handleTouchMove(e) {
     e.preventDefault();
     if (draggedPiece) {
-        const touch = e.touches[0];
+        const touch = e.touches[0] || e.changedTouches[0]; // For touch devices
         const chessboardRect = boardElement.getBoundingClientRect();
         const pieceRect = draggedPiece.getBoundingClientRect();
 
@@ -158,11 +158,8 @@ function handleTouchMove(e) {
 
         // Apply the translation using the transform property
         draggedPiece.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
+        draggedPiece.style.position = "absolute";
         draggedPiece.style.zIndex = "1000";  // Bring the piece to the front
-
-        // Ensure the piece does not enlarge
-        draggedPiece.style.width = `${pieceRect.width}px`;
-        draggedPiece.style.height = `${pieceRect.height}px`;
     }
 }
 
@@ -178,6 +175,7 @@ function handleTouchEnd(e) {
         }
         // Reset transformations after drop
         draggedPiece.style.transform = "";
+        draggedPiece.style.position = "";  // Reset to original static positioning
         draggedPiece.style.zIndex = "";  // Reset z-index
         draggedPiece = null;
         sourceSquare = null;

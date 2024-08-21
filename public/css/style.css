@@ -118,6 +118,7 @@
 
 .piece {
     cursor: pointer;
+    transition: transform 0.2s ease;
 }
 
 .piece.draggable {
