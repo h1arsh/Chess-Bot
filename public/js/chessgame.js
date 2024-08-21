@@ -23,6 +23,7 @@ let blackTime = 600;
 let promotionUI = null;
 let moveCount = 0; // Track move count for history
 
+
 // Event Listeners
 socket.on('connect', () => console.log('Connected to server'));
 
@@ -50,10 +51,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Adjust board and UI elements size based on screen size
 function adjustBoardSize() {
-    const container = document.querySelector(".container");
-    const boardSize = Math.min(container.clientWidth, container.clientHeight);
+    const container = document.querySelector(".chessboard-container");
+    const boardSize = Math.min(container.clientWidth, container.clientHeight) - 20; // Add some padding
     boardElement.style.width = `${boardSize}px`;
     boardElement.style.height = `${boardSize}px`;
+
     // Adjust promotion UI if it's active
     if (promotionUI) {
         positionPromotionUI(promotionUI.dataset.targetSquare);
@@ -148,18 +150,18 @@ function handleTouchStart(e) {
 function handleTouchMove(e) {
     e.preventDefault();
     if (draggedPiece) {
-        const touch = e.touches[0] || e.changedTouches[0]; // For touch devices
+        const touch = e.touches[0] || e.changedTouches[0];
         const chessboardRect = boardElement.getBoundingClientRect();
-        const pieceRect = draggedPiece.getBoundingClientRect();
-
-        // Calculate the offset to keep the piece centered under the touch point
-        const offsetX = touch.clientX - chessboardRect.left - pieceRect.width / 2;
-        const offsetY = touch.clientY - chessboardRect.top - pieceRect.height / 2;
-
-        // Apply the translation using the transform property
-        draggedPiece.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
-        draggedPiece.style.position = "absolute";
-        draggedPiece.style.zIndex = "1000";  // Bring the piece to the front
+        
+        // Calculate position based on touch position
+        const offsetX = touch.clientX - chessboardRect.left;
+        const offsetY = touch.clientY - chessboardRect.top;
+        
+        // Apply transformation to position the piece correctly
+        draggedPiece.style.position = 'absolute';
+        draggedPiece.style.left = `${offsetX - draggedPiece.clientWidth / 2}px`;
+        draggedPiece.style.top = `${offsetY - draggedPiece.clientHeight / 2}px`;
+        draggedPiece.style.zIndex = '1000';
     }
 }
 

@@ -39,6 +39,7 @@
     font-weight: bold;
     z-index: 10;
     position: absolute;
+    user-select: none; /* Disable text selection */
 }
 
 #black-timer {
@@ -50,8 +51,8 @@
 }
 
 #white-timer {
-    bottom: -80px; /* Position below the chessboard */
-    left: 0; /* Align to the left edge of the chessboard */
+    bottom: -800px; /* Move the timer further down, adjust this value if needed */
+    left: 0;
     padding-left: 10px;
     padding-right: 10px;
     border-radius: 5px;
@@ -64,6 +65,7 @@
     font-family: Arial, sans-serif;
     pointer-events: none;
     position: absolute;
+    user-select: none; /* Disable text selection */
 }
 
 .files-labels {
@@ -100,12 +102,14 @@
     border: 2px solid #333;
     box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.7);
     position: relative;
+    touch-action: none; /* Prevent default touch actions */
 }
 
 .square {
     display: flex;
     align-items: center;
     justify-content: center;
+    user-select: none; /* Disable text selection */
 }
 
 .square.light {
@@ -118,7 +122,8 @@
 
 .piece {
     cursor: pointer;
-    transition: transform 0.2s ease;
+    transition: transform 0.2s ease, left 0.2s ease, top 0.2s ease;
+    touch-action: none; /* Prevent default touch actions */
 }
 
 .piece.draggable {
@@ -127,6 +132,7 @@
 
 .dragging {
     opacity: 0.6;
+    pointer-events: none; /* Disable interactions while dragging */
 }
 
 .flipped {
@@ -154,6 +160,7 @@
     z-index: 10;
     position: absolute;
     transform: translate(-50%, -50%); /* Center the container on the pawn */
+    user-select: none; /* Disable text selection */
 }
 
 .promotion-button {
@@ -196,12 +203,12 @@
     }
 
     .chessboard {
-        width: 240px; /* Smaller chessboard for smaller screens */
-        height: 240px;
+        width: 320px; /* Smaller chessboard for smaller screens */
+        height: 320px;
     }
 
     .piece {
-        font-size: 20px; /* Adjust piece size for smaller screens */
+        font-size: 22px; /* Adjust piece size for smaller screens */
     }
 
     .files-labels {
@@ -247,12 +254,12 @@
     }
 
     .chessboard {
-        width: 200px; /* Further reduction in chessboard size */
-        height: 200px;
+        width: 240px; /* Further reduction in chessboard size */
+        height: 240px;
     }
 
     .piece {
-        font-size: 16px; /* Further reduction in piece size */
+        font-size: 18px; /* Further reduction in piece size */
     }
 
     .files-labels {
