@@ -44,7 +44,21 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('depthSelect').addEventListener('change', function() {
         selectedDepth = this.value;
     });
+    adjustBoardSize();
+    window.addEventListener('resize', adjustBoardSize);
 });
+
+// Adjust board and UI elements size based on screen size
+function adjustBoardSize() {
+    const container = document.querySelector(".container");
+    const boardSize = Math.min(container.clientWidth, container.clientHeight);
+    boardElement.style.width = `${boardSize}px`;
+    boardElement.style.height = `${boardSize}px`;
+    // Adjust promotion UI if it's active
+    if (promotionUI) {
+        positionPromotionUI(promotionUI.dataset.targetSquare);
+    }
+}
 
 function renderBoard() {
     boardElement.innerHTML = "";
@@ -73,8 +87,9 @@ function createSquareElement(rowIndex, colIndex, square) {
 
     squareElement.addEventListener("dragover", (e) => e.preventDefault());
     squareElement.addEventListener("drop", handleDrop);
-    // Mobile touch event listeners
-    squareElement.addEventListener("touchmove", (e) => e.preventDefault());
+    squareElement.addEventListener("touchstart", handleTouchStart);
+    squareElement.addEventListener("touchmove", handleTouchMove);
+    squareElement.addEventListener("touchend", handleTouchEnd);
     
     return squareElement;
 }
@@ -101,60 +116,6 @@ function createPieceElement(square, rowIndex, colIndex) {
         sourceSquare = null;
     });
 
-    // Mobile touch event listeners
-    pieceElement.addEventListener("touchstart", (e) => {
-        if (isPlayerTurn && pieceElement.draggable) {
-            draggedPiece = pieceElement;
-            sourceSquare = { row: rowIndex, col: colIndex };
-            e.preventDefault();
-        }
-    });
-
-    pieceElement.addEventListener("touchmove", (e) => {
-        if (isPlayerTurn && draggedPiece) {
-            const touch = e.touches[0];
-            draggedPiece.style.position = "absolute";
-            draggedPiece.style.left = `${touch.pageX - draggedPiece.clientWidth / 2}px`;
-            draggedPiece.style.top = `${touch.pageY - draggedPiece.clientHeight / 2}px`;
-            e.preventDefault();
-        }
-    });
-
-    pieceElement.addEventListener("touchend", (e) => {
-        if (isPlayerTurn && draggedPiece) {
-            const touch = e.changedTouches[0];
-            const targetSquare = document.elementFromPoint(touch.clientX, touch.clientY);
-    
-            if (targetSquare && targetSquare.classList.contains("square")) {
-                const targetRow = parseInt(targetSquare.dataset.row);
-                const targetCol = parseInt(targetSquare.dataset.col);
-    
-                // Ensure the move is legal by checking with chess.js
-                const move = {
-                    from: `${String.fromCharCode(97 + sourceSquare.col)}${8 - sourceSquare.row}`,
-                    to: `${String.fromCharCode(97 + targetCol)}${8 - targetRow}`,
-                    promotion: null, // handle promotion later if needed
-                };
-    
-                // Validate the move with chess.js
-                if (chess.move(move)) {
-                    // Valid move, so handle the move
-                    handleMove(sourceSquare, { row: targetRow, col: targetCol });
-                } else {
-                    // Invalid move, reset piece position
-                    sounds.illegal.play();
-                }
-            }
-    
-            // Reset piece position
-            draggedPiece.style.position = "static";
-            draggedPiece = null;
-            sourceSquare = null;
-        }
-        e.preventDefault();
-    });
-    
-    
 
     return pieceElement;
 }
@@ -167,6 +128,43 @@ function handleDrop(e) {
             col: parseInt(e.currentTarget.dataset.col),
         };
         handleMove(sourceSquare, targetSquare);
+    }
+}
+
+function handleTouchStart(e) {
+    const squareElement = e.target.closest(".square");
+    if (squareElement && chess.turn() === playerColor) {
+        const rowIndex = parseInt(squareElement.dataset.row);
+        const colIndex = parseInt(squareElement.dataset.col);
+        sourceSquare = { row: rowIndex, col: colIndex };
+        const pieceElement = squareElement.querySelector(".piece");
+        if (pieceElement) {
+            draggedPiece = pieceElement;
+        }
+    }
+}
+
+function handleTouchMove(e) {
+    if (draggedPiece) {
+        const touch = e.touches[0];
+        draggedPiece.style.position = "absolute";
+        draggedPiece.style.left = `${touch.clientX - draggedPiece.offsetWidth / 2}px`;
+        draggedPiece.style.top = `${touch.clientY - draggedPiece.offsetHeight / 2}px`;
+    }
+}
+
+function handleTouchEnd(e) {
+    if (draggedPiece) {
+        const targetElement = document.elementFromPoint(e.changedTouches[0].clientX, e.changedTouches[0].clientY);
+        const targetSquare = targetElement.closest(".square");
+        if (targetSquare) {
+            const targetRow = parseInt(targetSquare.dataset.row);
+            const targetCol = parseInt(targetSquare.dataset.col);
+            handleMove(sourceSquare, { row: targetRow, col: targetCol });
+        }
+        draggedPiece.style.position = "";
+        draggedPiece = null;
+        sourceSquare = null;
     }
 }
 
