@@ -104,6 +104,7 @@ function createPieceElement(square, rowIndex, colIndex) {
     pieceElement.draggable = isPlayerTurn && square.color === playerColor;
 
     pieceElement.addEventListener("dragstart", (e) => {
+        e.preventDefault();
         if (isPlayerTurn && pieceElement.draggable) {
             draggedPiece = pieceElement;
             sourceSquare = { row: rowIndex, col: colIndex };
@@ -132,6 +133,7 @@ function handleDrop(e) {
 }
 
 function handleTouchStart(e) {
+    e.preventDefault();
     const squareElement = e.target.closest(".square");
     if (squareElement && chess.turn() === playerColor) {
         const rowIndex = parseInt(squareElement.dataset.row);
@@ -145,6 +147,7 @@ function handleTouchStart(e) {
 }
 
 function handleTouchMove(e) {
+    e.preventDefault();
     if (draggedPiece) {
         const touch = e.touches[0];
         draggedPiece.style.position = "absolute";
@@ -154,6 +157,7 @@ function handleTouchMove(e) {
 }
 
 function handleTouchEnd(e) {
+    e.preventDefault();
     if (draggedPiece) {
         const targetElement = document.elementFromPoint(e.changedTouches[0].clientX, e.changedTouches[0].clientY);
         const targetSquare = targetElement.closest(".square");
