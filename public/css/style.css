@@ -215,14 +215,14 @@
     }
 
     .files-labels div, .ranks-labels div {
-        width: 25px; /* Adjust for smaller screens */
-        height: 25px;
-        line-height: 25px;
+        width: 45px; /* Adjust for smaller screens */
+        height: 45px;
+        line-height: 45px;
     }
 
     .chessboard {
-        width: 320px; /* Smaller chessboard for smaller screens */
-        height: 320px;
+        width: 350px; /* Smaller chessboard for smaller screens */
+        height: 350px;
     }
 
     .piece {
@@ -230,11 +230,11 @@
     }
 
     .files-labels {
-        bottom: -25px; /* Adjust label position for smaller screens */
+        bottom: -45px; /* Adjust label position for smaller screens */
     }
 
     .ranks-labels {
-        left: -25px; /* Adjust label position for smaller screens */
+        left: -45px; /* Adjust label position for smaller screens */
     }
 
     .promotion-container {
@@ -251,7 +251,7 @@
 @media (max-width: 480px) {
     #moveHistoryTextarea {
         height: 200px; /* Further reduce height on very small screens */
-        max-width: 100px; /* Further reduce width on very small screens */
+        max-width: 200px; /* Further reduce width on very small screens */
         padding: 6px; /* Further reduce padding on very small screens */
         font-size: 12px; /* Smaller font size for very small screens */
     }
@@ -268,12 +268,13 @@
     .files-labels div, .ranks-labels div {
         width: 20px; /* Further adjustment for very small screens */
         height: 20px;
-        line-height: 20px;
+        line-height: 5px;
+        
     }
 
     .chessboard {
-        width: 240px; /* Further reduction in chessboard size */
-        height: 240px;
+        width: 230px; /* Further reduction in chessboard size */
+        height: 230px;
     }
 
     .piece {
@@ -281,11 +282,11 @@
     }
 
     .files-labels {
-        bottom: -20px; /* Further adjustment for label position */
+        bottom: -18px; /* Further adjustment for label position */
     }
 
     .ranks-labels {
-        left: -20px; /* Further adjustment for label position */
+        left: -18px; /* Further adjustment for label position */
     }
 
     .promotion-container {

@@ -48,22 +48,8 @@ document.addEventListener('DOMContentLoaded', () => {
     sounds.gameStart.play();
     renderBoard();
     updateTimerUI();
-    adjustBoardSize();
     window.addEventListener('resize', adjustBoardSize);
 });
-
-// Adjust board and UI elements size based on screen size
-function adjustBoardSize() {
-    const container = document.querySelector(".chessboard-container");
-    const boardSize = Math.min(container.clientWidth, container.clientHeight) - 20; // Add some padding
-    boardElement.style.width = `${boardSize}px`;
-    boardElement.style.height = `${boardSize}px`;
-
-    // Adjust promotion UI if it's active
-    if (promotionUI) {
-        positionPromotionUI(promotionUI.dataset.targetSquare);
-    }
-}
 
 function renderBoard() {
     boardElement.innerHTML = "";
