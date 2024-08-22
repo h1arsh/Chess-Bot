@@ -6,6 +6,24 @@
     margin: 120px;
 }
 
+.highlight {
+    position: relative;
+}
+
+.highlight::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 40%; /* Adjusted to create a smaller circle */
+    height: 40%; /* Adjusted to create a smaller circle */
+    background-color: rgb(233, 241, 68); /* Yellow color with some transparency */
+    border-radius: 50%; /* Make it a solid circle */
+    transform: translate(-50%, -50%);
+    pointer-events: none; /* Ensure it doesn't interfere with clicks */
+}
+
+
 /* History box styling */
 #moveHistoryTextarea {
     background-color: #1f2937; /* Dark background */

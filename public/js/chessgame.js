@@ -35,16 +35,19 @@ socket.on('resetBoard', () => {
     const moveHistoryTextarea = document.getElementById("moveHistoryTextarea");
     moveHistoryTextarea.value = ""; // Clear move history
     moveCount = 0; // Reset move count
+    chess.reset(); // Reset the chess game state
     renderBoard(); // Render the new board
 });
 
 document.addEventListener('DOMContentLoaded', () => {
+
+    const selectedDepth = new URLSearchParams(window.location.search).get('depth') || 15;
+    // Store the selected depth globally or pass it to the relevant functions
+    window.selectedDepth = selectedDepth;
+
     sounds.gameStart.play();
     renderBoard();
     updateTimerUI();
-    document.getElementById('depthSelect').addEventListener('change', function() {
-        selectedDepth = this.value;
-    });
     adjustBoardSize();
     window.addEventListener('resize', adjustBoardSize);
 });
@@ -87,11 +90,8 @@ function createSquareElement(rowIndex, colIndex, square) {
         squareElement.appendChild(pieceElement);
     }
 
-    squareElement.addEventListener("dragover", (e) => e.preventDefault());
-    squareElement.addEventListener("drop", handleDrop);
-    squareElement.addEventListener("touchstart", handleTouchStart);
-    squareElement.addEventListener("touchmove", handleTouchMove);
-    squareElement.addEventListener("touchend", handleTouchEnd);
+    squareElement.addEventListener("click", () => handleSquareClick(rowIndex, colIndex));
+    squareElement.addEventListener("touchend", () => handleSquareClick(rowIndex, colIndex));
     
     return squareElement;
 }
@@ -101,109 +101,57 @@ function createPieceElement(square, rowIndex, colIndex) {
     pieceElement.classList.add("piece", square.color === "w" ? "white" : "black");
     pieceElement.src = getPieceImage(square);
 
-    // Disable dragging if it's not the player's turn
-    const isPlayerTurn = chess.turn() === playerColor;
-    pieceElement.draggable = isPlayerTurn && square.color === playerColor;
-
-    pieceElement.addEventListener("dragstart", (e) => {
-        if (isPlayerTurn && pieceElement.draggable) {
-            draggedPiece = pieceElement;
-            sourceSquare = { row: rowIndex, col: colIndex };
-            e.dataTransfer.setData("text/plain", "");
-        }
-    });
-
-    pieceElement.addEventListener("dragend", () => {
-        draggedPiece = null;
-        sourceSquare = null;
-    });
-
-
     return pieceElement;
 }
 
-function handleDrop(e) {
-    e.preventDefault();
-    if (draggedPiece) {
-        const targetSquare = {
-            row: parseInt(e.currentTarget.dataset.row),
-            col: parseInt(e.currentTarget.dataset.col),
+function handleSquareClick(row, col) {
+    const squareId = `${String.fromCharCode(97 + col)}${8 - row}`;
+    const selectedPiece = chess.get(squareId);
+
+    if (selectedPiece && selectedPiece.color === playerColor) {
+        // If a piece is selected, highlight possible moves
+        selectedPieceSquare = squareId;
+        highlightPossibleMoves(selectedPieceSquare);
+    } else if (selectedPieceSquare) {
+        // If a piece was previously selected, try to move to the clicked square
+        const move = {
+            from: selectedPieceSquare,
+            to: squareId,
+            promotion: null
         };
-        handleMove(sourceSquare, targetSquare);
-    }
-}
 
-function handleTouchStart(e) {
-    e.preventDefault();
-    const squareElement = e.target.closest(".square");
-    if (squareElement && chess.turn() === playerColor) {
-        const rowIndex = parseInt(squareElement.dataset.row);
-        const colIndex = parseInt(squareElement.dataset.col);
-        sourceSquare = { row: rowIndex, col: colIndex };
-        const pieceElement = squareElement.querySelector(".piece");
-        if (pieceElement) {
-            draggedPiece = pieceElement;
-        }
-    }
-}
-
-function handleTouchMove(e) {
-    e.preventDefault();
-    if (draggedPiece) {
-        const touch = e.touches[0] || e.changedTouches[0];
-        const chessboardRect = boardElement.getBoundingClientRect();
-        
-        // Calculate position based on touch position
-        const offsetX = touch.clientX - chessboardRect.left;
-        const offsetY = touch.clientY - chessboardRect.top;
-        
-        // Apply transformation to position the piece correctly
-        draggedPiece.style.position = 'absolute';
-        draggedPiece.style.left = `${offsetX - draggedPiece.clientWidth / 2}px`;
-        draggedPiece.style.top = `${offsetY - draggedPiece.clientHeight / 2}px`;
-        draggedPiece.style.zIndex = '1000';
-    }
-}
-
-function handleTouchEnd(e) {
-    e.preventDefault();
-    if (draggedPiece) {
-        const targetElement = document.elementFromPoint(e.changedTouches[0].clientX, e.changedTouches[0].clientY);
-        const targetSquare = targetElement.closest(".square");
-        if (targetSquare) {
-            const targetRow = parseInt(targetSquare.dataset.row);
-            const targetCol = parseInt(targetSquare.dataset.col);
-            handleMove(sourceSquare, { row: targetRow, col: targetCol });
-        }
-        // Reset transformations after drop
-        draggedPiece.style.transform = "";
-        draggedPiece.style.position = "";  // Reset to original static positioning
-        draggedPiece.style.zIndex = "";  // Reset z-index
-        draggedPiece = null;
-        sourceSquare = null;
-    }
-}
-
-function handleMove(source, target) {
-    const move = {
-        from: `${String.fromCharCode(97 + source.col)}${8 - source.row}`,
-        to: `${String.fromCharCode(97 + target.col)}${8 - target.row}`,
-        promotion: null,
-    };
-
-    if (isPawnPromotion(move)) {
-        showPromotionUI(move, (promotion) => {
-            move.promotion = promotion;
-            sounds.promote.play();
-            makeMove(move);
-        });
-    } else {
-        if (chess.move(move)) {
-            makeMove(move);
+        if (isPawnPromotion(move)) {
+            showPromotionUI(move, (promotion) => {
+                move.promotion = promotion;
+                sounds.promote.play();
+                makeMove(move);
+            });
         } else {
-            sounds.illegal.play();
+            if (chess.move(move)) {
+                makeMove(move);
+            } else {
+                sounds.illegal.play();
+            }
         }
+        selectedPieceSquare = null; // Deselect piece after move
+        removeHighlightFromAllSquares(); // Remove highlights after move
     }
+}
+
+function highlightPossibleMoves(squareId) {
+    removeHighlightFromAllSquares(); // Clear previous highlights
+    const moves = chess.moves({ square: squareId, verbose: true });
+
+    moves.forEach((move) => {
+        const targetSquare = document.querySelector(`.square[data-row="${8 - parseInt(move.to[1], 10)}"][data-col="${move.to.charCodeAt(0) - 97}"]`);
+        if (targetSquare) {
+            targetSquare.classList.add("highlight");
+        }
+    });
+}
+
+function removeHighlightFromAllSquares() {
+    document.querySelectorAll(".highlight").forEach((el) => el.classList.remove("highlight"));
 }
 
 function isPawnPromotion(move) {
@@ -220,9 +168,32 @@ function makeMove(move) {
     handleAIMove();
 }
 
-function handleAIMove() {
+async function handleAIMove() {
     const fen = chess.fen();
+    const aiMove = await getBestMoveFromAI(fen, window.selectedDepth); // Pass the selected depth
 }
+
+const getBestMoveFromAI = async (fen, depth) => {
+    try {
+        const response = await axios.get('https://stockfish.online/api/s/v2.php', {
+            params: {
+                fen: fen,
+                depth: depth,  // Use the selected depth value
+            },
+        });
+
+        if (response.data.success) {
+            const bestMove = response.data.bestmove.split(' ')[1];
+            return bestMove;
+        } else {
+            console.error("Stockfish API did not return a successful response");
+            return null;
+        }
+    } catch (err) {
+        console.error("Error getting AI move:", err);
+        return null;
+    }
+};
 
 function playSoundForMove(move) {
     if (move.flags.includes('c')) {

@@ -4,18 +4,10 @@ const http = require("http");
 const { Chess } = require("chess.js");
 const axios = require("axios");
 const path = require("path");
-const { log } = require("console");
 
 const app = express();
 const server = http.createServer(app);
 const io = socket(server);
-
-const chess = new Chess();
-
-let white_time = 600;
-let black_time = 600;
-let intervalID;
-const playerRole = 'w'; // Player is always white
 
 app.set("view engine", "ejs");
 app.use(express.static(path.join(__dirname, "public")));
@@ -25,35 +17,43 @@ app.get('/', (req, res) => {
 });
 
 app.get("/index", (req, res) => {
-    res.render("index", { title: "Chess Game" });
+    const selectedDepth = req.query.depth || 10; // Default to 15 if not provided
+    console.log(`Selected Depth: ${selectedDepth}`); // Log the selected depth to the terminal
+    res.render("index", { title: "Chess Game", depth: selectedDepth });
 });
-
-const start_timer = () => {
-    clearInterval(intervalID);
-
-    intervalID = setInterval(() => {
-        if (chess.turn() === 'w') {
-            white_time--;
-        } else {
-            black_time--;
-        }
-
-        io.emit("updatetimer", { white_time, black_time });
-
-        if (white_time <= 0 || black_time <= 0) {
-            clearInterval(intervalID);
-            const winner = white_time <= 0 ? "Black" : "White";
-            io.emit("gameover", `Time is up! ${winner} Wins by Timeout`);
-        }
-    }, 1000);
-};
 
 io.on("connection", (uniquesocket) => {
     console.log("Player connected");
 
-    uniquesocket.emit("playerRole", playerRole);
+    // Initialize game state for each connected user
+    const chess = new Chess();
+    let white_time = 600;
+    let black_time = 600;
+    let intervalID;
 
-    uniquesocket.on("move", async ( move) => {
+    uniquesocket.emit("playerRole", 'w'); // Player is always white
+
+    const start_timer = () => {
+        clearInterval(intervalID);
+
+        intervalID = setInterval(() => {
+            if (chess.turn() === 'w') {
+                white_time--;
+            } else {
+                black_time--;
+            }
+
+            uniquesocket.emit("updatetimer", { white_time, black_time });
+
+            if (white_time <= 0 || black_time <= 0) {
+                clearInterval(intervalID);
+                const winner = white_time <= 0 ? "Black" : "White";
+                uniquesocket.emit("gameover", `Time is up! ${winner} Wins by Timeout`);
+            }
+        }, 1000);
+    };
+
+    uniquesocket.on("move", async (move) => {
         console.log("Received move:", move);
 
         if (chess.turn() !== 'w') {
@@ -69,17 +69,18 @@ io.on("connection", (uniquesocket) => {
         }
 
         start_timer();
-        io.emit("move", result);
-        io.emit("boardState", chess.fen());
+        uniquesocket.emit("move", result);
+        uniquesocket.emit("boardState", chess.fen());
 
         if (chess.isCheckmate() || chess.isDraw()) {
             const gameOverMessage = chess.isCheckmate() ? "Checkmate!" : "Draw!";
-            io.emit("gameover", gameOverMessage);
+            uniquesocket.emit("gameover", gameOverMessage);
             clearInterval(intervalID);
             return;
         }
 
-        const aiMove = await getBestMoveFromAI(chess.fen()); // Pass the selected depth
+        const selectedDepth = move.depth || 15; // Retrieve selected depth from the client
+        const aiMove = await getBestMoveFromAI(chess.fen(), selectedDepth);
         if (aiMove) {
             const aiResult = chess.move({
                 from: aiMove.slice(0, 2),
@@ -88,12 +89,12 @@ io.on("connection", (uniquesocket) => {
             });
 
             if (aiResult) {
-                io.emit("move", aiResult);
-                io.emit("boardState", chess.fen());
+                uniquesocket.emit("move", aiResult);
+                uniquesocket.emit("boardState", chess.fen());
 
                 if (chess.isCheckmate() || chess.isDraw()) {
                     const gameOverMessage = chess.isCheckmate() ? "Checkmate! Black wins the game" : "Draw! The game is a draw";
-                    io.emit("gameover", gameOverMessage);
+                    uniquesocket.emit("gameover", gameOverMessage);
                     clearInterval(intervalID);
                 }
             } else {
@@ -106,9 +107,9 @@ io.on("connection", (uniquesocket) => {
         chess.reset();
         white_time = 600;
         black_time = 600;
-        io.emit("resetBoard");
-        io.emit("boardState", chess.fen());
-        io.emit("updatetimer", { white_time, black_time });
+        uniquesocket.emit("resetBoard");
+        uniquesocket.emit("boardState", chess.fen());
+        uniquesocket.emit("updatetimer", { white_time, black_time });
     });
 
     uniquesocket.on("disconnect", () => {
@@ -117,12 +118,12 @@ io.on("connection", (uniquesocket) => {
     });
 });
 
-const getBestMoveFromAI = async (fen ) => {
+const getBestMoveFromAI = async (fen, depth, retries = 3) => {
     try {
         const response = await axios.get('https://stockfish.online/api/s/v2.php', {
             params: {
                 fen: fen,
-                depth: 15,  // Use the selected depth value
+                depth: depth,  // Use the selected depth value
             },
         });
 
@@ -131,10 +132,18 @@ const getBestMoveFromAI = async (fen ) => {
             return bestMove;
         } else {
             console.error("Stockfish API did not return a successful response");
+            if (retries > 0) {
+                console.warn("Retrying...", retries);
+                return await getBestMoveFromAI(fen, depth, retries - 1);
+            }
             return null;
         }
     } catch (err) {
         console.error("Error getting AI move:", err);
+        if (retries > 0) {
+            console.warn("Retrying...", retries);
+            return await getBestMoveFromAI(fen, depth, retries - 1);
+        }
         return null;
     }
 };
