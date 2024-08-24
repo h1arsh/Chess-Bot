@@ -432,14 +432,14 @@ body.futuristic-theme .square.highlight::before {
     }
 
     .timer {
-        font-size: 0.75rem; /* Even smaller font size for very small screens */
+        font-size: 1rem; /* Even smaller font size for very small screens */
     }
 
     #black-timer{
-        top: -50px;
+        top: -70px;
     }
      #white-timer {
-        bottom: -50px;
+        bottom: -70px;
     }
 
     .files-labels div, .ranks-labels div {
