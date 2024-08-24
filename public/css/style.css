@@ -1,3 +1,136 @@
+/* Classic Theme */
+body.classic-theme {
+    background-color: #f5f5f5; /* Light background for classic theme */
+    color: #000000; /* Dark text for classic theme */
+}
+
+body.classic-theme .chessboard {
+    background-color: #e0d0a2; /* Classic chessboard color */
+}
+
+body.classic-theme .square.light {
+    background-color: #ffffff; /* Light squares */
+}
+
+body.classic-theme .square.dark {
+    background-color: #000000; /* Dark squares */
+}
+
+body.classic-theme .piece.white {
+    filter: drop-shadow(0 0 10px rgb(0, 0, 0)); 
+}
+
+body.classic-theme .piece.black {
+    filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.8)); 
+}
+
+/* Existing Themes */
+body.light-theme {
+    background-color: #ffffff;
+    color: #000000;
+}
+
+body.light-theme .chessboard {
+    background-color: #f0f0f0;
+}
+
+body.light-theme .square.light {
+    background-color: #ffffff;
+}
+
+body.light-theme .square.dark {
+    background-color: #c0c0c0;
+}
+
+body.dark-theme {
+    background-color: #000000;
+    color: #ffffff;
+}
+
+body.dark-theme .chessboard {
+    background-color: #333333;
+}
+
+body.dark-theme .square.light {
+    background-color: #dfd3d3;
+}
+
+body.dark-theme .square.dark {
+    background-color: #222222;
+}
+
+/* Wooden Theme */
+body.wooden-theme {
+    background-color: #f5f5f5; /* Light background */
+    color: #000000; /* Dark text */
+}
+
+body.wooden-theme .chessboard {
+    background-color: #d4a671; /* Wood color for the board */
+}
+
+body.wooden-theme .square.light {
+    background-color: #f4e8d0; /* Light wood color */
+}
+
+body.wooden-theme .square.dark {
+    background-color: #a27335; /* Dark wood color */
+}
+
+/* Futuristic Theme */
+body.futuristic-theme {
+    background-color: #1a1a1a; /* Dark, sleek background */
+    color: #e0e0e0; /* Light text for contrast */
+}
+
+body.futuristic-theme .chessboard {
+    background-color: #2b2b2b; /* Slightly lighter dark background for the board */
+    border: 2px solid #00ff00; /* Neon green border for a tech feel */
+    box-shadow: 0 0 10px rgba(0, 255, 0, 0.5); /* Neon glow effect */
+}
+
+body.futuristic-theme .square.light {
+    background-color: #333333; /* Dark squares with a slight glow */
+    border: 1px solid #444; /* Subtle border */
+}
+
+body.futuristic-theme .square.dark {
+    background-color: #1a1a1a; /* Even darker squares */
+}
+
+body.futuristic-theme .piece {
+    filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.7)); /* Default glow */
+}
+
+body.futuristic-theme .piece.white {
+    filter: drop-shadow(0 0 10px rgb(0, 166, 249)); /* Blue glow for white pieces */
+}
+
+body.futuristic-theme .piece.black {
+    filter: drop-shadow(0 0 10px rgba(255, 0, 0, 0.8)); /* Red glow for black pieces */
+}
+
+/* Highlight Circle for Futuristic Theme */
+body.futuristic-theme .square.highlight {
+    position: relative; /* Ensure the highlight effect is positioned relative to the square */
+}
+
+body.futuristic-theme .square.highlight::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 50%;
+    height: 50%;
+    background: rgba(0, 255, 255, 0.3); /* Semi-transparent cyan circle */
+    border-radius: 50%; /* Make it circular */
+    box-shadow: 0 0 15px rgba(54, 157, 157, 0.8); /* Glowing effect */
+    transform: translate(-50%, -50%); /* Center the circle */
+    z-index: 1; /* Ensure it appears above the square */
+    pointer-events: none; /* Prevent interaction with the circle */
+}
+
+
 .chessboard-container {
     display: flex;
     justify-content: center;
@@ -11,13 +144,14 @@
 }
 
 .highlight::before {
-    content: '';
+    content: "";
     position: absolute;
     top: 50%;
     left: 50%;
-    width: 40%; /* Adjusted to create a smaller circle */
-    height: 40%; /* Adjusted to create a smaller circle */
-    background-color: rgb(233, 241, 68); /* Yellow color with some transparency */
+    width: 50%; /* Adjusted to create a smaller circle */
+    height: 50%; /* Adjusted to create a smaller circle */
+    box-shadow: 0 0 15px rgb(255, 255, 0);
+    background-color: rgb(233, 241, 68, 0.8); /* Yellow color with some transparency */
     border-radius: 50%; /* Make it a solid circle */
     transform: translate(-50%, -50%);
     pointer-events: none; /* Ensure it doesn't interfere with clicks */
@@ -53,6 +187,7 @@
 /* Timer Styling */
 .timer {
     color: white;
+    font-family: "Segoe UI Symbol", "Arial", sans-serif;
     font-size: 2rem;
     font-weight: bold;
     z-index: 10;
@@ -61,19 +196,19 @@
 }
 
 #black-timer {
-    top: -80px; /* Position above the chessboard */
-    right: 0; /* Align to the right edge of the chessboard */
+    border: 3px solid #e74c3c;
+    top: -100px; /* Position above the chessboard */
     padding-left: 10px;
     padding-right: 10px;
-    border-radius: 5px;
+    border-radius: 15px;
 }
 
 #white-timer {
-    bottom: -800px; /* Move the timer further down, adjust this value if needed */
-    left: 0;
+    border: 3px solid #3498db;
+    bottom: -100px; /* Move the timer further down, adjust this value if needed */
     padding-left: 10px;
     padding-right: 10px;
-    border-radius: 5px;
+    border-radius: 15px;
 }
 
 .files-labels, .ranks-labels {
@@ -111,6 +246,15 @@
     justify-content: center;
 }
 
+/* Reset button */
+.btn1{
+    height: 40px;
+    width: 80px;
+    font-size: 1.3rem;
+    font-weight: 400;
+}
+
+
 .chessboard {
     display: grid;
     grid-template-columns: repeat(8, minmax(0, 1fr));
@@ -140,7 +284,7 @@
 
 .piece {
     cursor: pointer;
-    transition: transform 0.2s ease, left 0.2s ease, top 0.2s ease;
+    transition: transform 0.3s ease;
     touch-action: none; /* Prevent default touch actions */
 }
 
@@ -201,17 +345,27 @@
 @media (max-width: 640px) {
     #moveHistoryTextarea {
         height: 250px; /* Reduce height on smaller screens */
-        max-width: 200px; /* Reduce width on smaller screens */
+        max-width: 250px; /* Reduce width on smaller screens */
         padding: 8px; /* Reduce padding on smaller screens */
+    }
+    
+    /* Reset button */
+    .btn1{
+        height: 35px;
+        width: 60px;
+        font-size: 1.1rem;
+        font-weight: 400;
     }
 
     .timer {
         font-size: 1.25rem; /* Smaller font size for medium screens */
     }
 
-    #black-timer, #white-timer {
-        top: auto;
-        bottom: auto;
+    #black-timer{
+        top: -80px;
+    }
+     #white-timer {
+        bottom: -80px;
     }
 
     .files-labels div, .ranks-labels div {
@@ -230,10 +384,12 @@
     }
 
     .files-labels {
+        font-weight: 400;
         bottom: -45px; /* Adjust label position for smaller screens */
     }
 
     .ranks-labels {
+        font-weight: 400;
         left: -45px; /* Adjust label position for smaller screens */
     }
 
@@ -256,25 +412,45 @@
         font-size: 12px; /* Smaller font size for very small screens */
     }
 
+    /* Reset button */
+    .btn1{
+        height: 25px;
+        width: 50px;
+        font-size: 0.8rem;
+        font-weight: 400;
+    }
+
+    
+    .theme1{
+        font-size: 0.9rem;
+    }
+
+    #theme{
+        height: 33px;
+        width: 90px;
+        font-size: 0.8rem;
+    }
+
     .timer {
         font-size: 0.75rem; /* Even smaller font size for very small screens */
     }
 
-    #black-timer, #white-timer {
-        top: auto;
-        bottom: auto;
+    #black-timer{
+        top: -50px;
+    }
+     #white-timer {
+        bottom: -50px;
     }
 
     .files-labels div, .ranks-labels div {
         width: 20px; /* Further adjustment for very small screens */
         height: 20px;
         line-height: 5px;
-        
     }
 
     .chessboard {
-        width: 230px; /* Further reduction in chessboard size */
-        height: 230px;
+        width: 220px; /* Further reduction in chessboard size */
+        height: 220px;
     }
 
     .piece {
@@ -282,11 +458,14 @@
     }
 
     .files-labels {
-        bottom: -18px; /* Further adjustment for label position */
+        font-weight:lighter;
+        font-size: smaller;
+        bottom: -25px; /* Further adjustment for label position */
     }
 
     .ranks-labels {
-        left: -18px; /* Further adjustment for label position */
+        font-weight: lighter;
+        left: -25px; /* Further adjustment for label position */
     }
 
     .promotion-container {

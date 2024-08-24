@@ -45,11 +45,33 @@ document.addEventListener('DOMContentLoaded', () => {
     // Store the selected depth globally or pass it to the relevant functions
     window.selectedDepth = selectedDepth;
 
+    const themeSelect = document.getElementById('theme');
+    
+    // Load saved theme from localStorage
+    const savedTheme = localStorage.getItem('theme') || 'default';
+    setTheme(savedTheme);
+    themeSelect.value = savedTheme;
+
+    // Add event listener for theme change
+    themeSelect.addEventListener('change', (event) => {
+        const selectedTheme = event.target.value;
+        setTheme(selectedTheme);
+    });
+    
+
     sounds.gameStart.play();
     renderBoard();
     updateTimerUI();
     window.addEventListener('resize', adjustBoardSize);
 });
+
+function setTheme(theme) {
+    document.body.classList.remove('default-theme', 'dark-theme', 'light-theme', 'classic-theme', 'wooden-theme', 'futuristic-theme');
+    if (theme !== 'default') {
+        document.body.classList.add(`${theme}-theme`);
+    }
+    localStorage.setItem('theme', theme);
+}
 
 function renderBoard() {
     boardElement.innerHTML = "";
@@ -61,8 +83,6 @@ function renderBoard() {
             boardElement.appendChild(squareElement);
         });
     });
-
-    flipBoardIfBlack();
 }
 
 function createSquareElement(rowIndex, colIndex, square) {
@@ -253,21 +273,6 @@ function getPieceImage(piece) {
     };
 
     return pieceImages[piece.color === "w" ? piece.type.toUpperCase() : piece.type.toLowerCase()] || "";
-}
-
-function flipBoardIfBlack() {
-    const whiteTimerElement = document.getElementById("white-timer");
-    const blackTimerElement = document.getElementById("black-timer");
-
-    if (playerColor === 'b') {
-        boardElement.classList.add("flipped");
-        whiteTimerElement.style.top = '-80px';
-        blackTimerElement.style.bottom = '-80px';
-    } else {
-        boardElement.classList.remove("flipped");
-        whiteTimerElement.style.bottom = '-80px';
-        blackTimerElement.style.top = '-80px';
-    }
 }
 
 function loadBoardState(fen) {
