@@ -449,8 +449,8 @@ body.futuristic-theme .square.highlight::before {
     }
 
     .chessboard {
-        width: 250px; /* Further reduction in chessboard size */
-        height: 250px;
+        width: 280px; /* Further reduction in chessboard size */
+        height: 280px;
     }
 
     .piece {
