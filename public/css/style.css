@@ -204,6 +204,10 @@ body.futuristic-theme .ranks-labels div {
     line-height: 1;
 }
 
+.piece_image{
+    filter: drop-shadow(0 0 10px rgba(241, 241, 146, 0.8));
+}
+
 
 .chessboard-container {
     display: flex;
