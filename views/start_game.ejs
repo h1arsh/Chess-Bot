@@ -9,7 +9,7 @@
     <title>Home</title>
 </head>
 <body>
-    <div id="loader" class="loader-container flex items-center justify-center">
+    <div id="loader" class="loader-container">
         <div class="loader"></div>
     </div>
     <div id="game-container" class="hidden">
@@ -52,8 +52,10 @@
         window.addEventListener('load', () => {
             const loader = document.getElementById('loader');
             const gameContainer = document.getElementById('game-container');
-            loader.style.display = 'none'; // Hide the loader
-            gameContainer.classList.remove('hidden'); // Show the game container
+            
+            // Hide the loader and show the game container after page fully loads
+            loader.style.display = 'none';
+            gameContainer.classList.remove('hidden');
         });
     </script>
 </body>
