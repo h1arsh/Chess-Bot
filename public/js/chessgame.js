@@ -22,7 +22,7 @@ let whiteTime = 600;
 let blackTime = 600;
 let promotionUI = null;
 let moveCount = 0; // Track move count for history
-
+let draggedSourceSquare = null; // To keep track of the source square during drag
 
 // Event Listeners
 socket.on('connect', () => console.log('Connected to server'));
@@ -103,6 +103,10 @@ function createSquareElement(rowIndex, colIndex, square) {
     squareElement.addEventListener("click", () => handleSquareClick(rowIndex, colIndex));
     squareElement.addEventListener("touchend", () => handleSquareClick(rowIndex, colIndex));
     
+    // Event listeners for drag and drop
+    squareElement.addEventListener("dragover", handleDragOver);
+    squareElement.addEventListener("drop", (event) => handleDrop(event, rowIndex, colIndex));
+
     return squareElement;
 }
 
@@ -111,7 +115,58 @@ function createPieceElement(square, rowIndex, colIndex) {
     pieceElement.classList.add("piece", square.color === "w" ? "white" : "black");
     pieceElement.src = getPieceImage(square);
 
+    // Add drag event listeners
+    pieceElement.addEventListener("dragstart", (event) => handleDragStart(event, rowIndex, colIndex));
+    pieceElement.addEventListener("dragend", handleDragEnd);
+
     return pieceElement;
+}
+
+function handleDragStart(e, rowIndex, colIndex) {
+    draggedSourceSquare = `${String.fromCharCode(97 + colIndex)}${8 - rowIndex}`;
+    e.dataTransfer.setData("text/plain", draggedSourceSquare);
+
+    // Highlight possible moves for the dragged piece
+    highlightPossibleMoves(draggedSourceSquare);
+}
+
+function handleDragOver(e) {
+    e.preventDefault();
+}
+
+function handleDrop(e, rowIndex, colIndex) {
+    e.preventDefault();
+
+    const targetSquare = `${String.fromCharCode(97 + colIndex)}${8 - rowIndex}`;
+    const move = {
+        from: draggedSourceSquare,
+        to: targetSquare,
+        promotion: null
+    };
+
+    // Remove highlights after dropping the piece
+    removeHighlightFromAllSquares();
+
+    if (isPawnPromotion(move)) {
+        showPromotionUI(move, (promotion) => {
+            move.promotion = promotion;
+            sounds.promote.play();
+            makeMove(move);
+        });
+    } else {
+        if (chess.move(move)) {
+            makeMove(move);
+        } else {
+            sounds.illegal.play();
+        }
+    }
+    removeHighlightFromAllSquares(); // Remove highlights after move
+    draggedSourceSquare = null; // Reset source square
+}
+
+function handleDragEnd() {
+    removeHighlightFromAllSquares(); // Clear any highlights when dragging ends
+    draggedSourceSquare = null;
 }
 
 function handleSquareClick(row, col) {
