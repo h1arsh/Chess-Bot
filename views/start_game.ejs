@@ -52,10 +52,11 @@
         window.addEventListener('load', () => {
             const loader = document.getElementById('loader');
             const gameContainer = document.getElementById('game-container');
-            
-            // Hide the loader and show the game container after page fully loads
-            loader.style.display = 'none';
-            gameContainer.classList.remove('hidden');
+            // Use a timeout to ensure the loader has time to display before hiding it
+            setTimeout(() => {
+                loader.style.display = 'none';
+                gameContainer.classList.remove('hidden');
+            }, 100); // Adjust the delay if necessary
         });
     </script>
 </body>
