@@ -42,28 +42,32 @@ socket.on('resetBoard', () => {
 document.addEventListener('DOMContentLoaded', () => {
 
     const selectedDepth = new URLSearchParams(window.location.search).get('depth') || 15;
-    // Store the selected depth globally or pass it to the relevant functions
     window.selectedDepth = selectedDepth;
 
     const themeSelect = document.getElementById('theme');
     
-    // Load saved theme from localStorage
     const savedTheme = localStorage.getItem('theme') || 'default';
     setTheme(savedTheme);
     themeSelect.value = savedTheme;
 
-    // Add event listener for theme change
     themeSelect.addEventListener('change', (event) => {
         const selectedTheme = event.target.value;
         setTheme(selectedTheme);
     });
     
+    document.getElementById('resignButton').addEventListener('click', resignGame);
+
 
     sounds.gameStart.play();
     renderBoard();
     updateTimerUI();
     window.addEventListener('resize', adjustBoardSize);
 });
+
+
+function resignGame() {
+    socket.emit('resignGame');
+}
 
 function setTheme(theme) {
     document.body.classList.remove('default-theme', 'dark-theme', 'light-theme', 'classic-theme', 'wooden-theme', 'futuristic-theme');

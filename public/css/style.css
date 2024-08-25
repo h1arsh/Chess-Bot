@@ -1,3 +1,24 @@
+.loader-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    z-index: 9999;
+}
+
+.loader {
+    background: #1F2937 url(/images/loader.gif) no-repeat center center;
+    background-size: 15%;
+    height: 100vh;
+    width: 100%;
+    position: fixed;
+    z-index: 100;
+}
+
+
+
 /* Classic Theme */
 body.classic-theme {
     background-color: #f5f5f5; /* Light background for classic theme */
@@ -22,6 +43,25 @@ body.classic-theme .piece.white {
 
 body.classic-theme .piece.black {
     filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.8)); 
+}
+
+/* Highlight Circle for classic Theme */
+body.classic-theme .square.highlight {
+    position: relative; 
+}
+
+body.classic-theme .square.highlight::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 50%; /* Adjusted to create a smaller circle */
+    height: 50%; /* Adjusted to create a smaller circle */
+    box-shadow: 0 0 15px rgb(66, 164, 31);
+    background-color: rgba(37, 179, 2, 0.8); /* Yellow color with some transparency */
+    border-radius: 50%; /* Make it a solid circle */
+    transform: translate(-50%, -50%);
+    pointer-events: none; /* Ensure it doesn't interfere with clicks */
 }
 
 /* Existing Themes */
@@ -77,6 +117,25 @@ body.wooden-theme .square.dark {
     background-color: #a27335; /* Dark wood color */
 }
 
+/* Highlight Circle for classic Theme */
+body.wooden-theme .square.highlight {
+    position: relative; 
+}
+
+body.wooden-theme .square.highlight::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 50%; /* Adjusted to create a smaller circle */
+    height: 50%; /* Adjusted to create a smaller circle */
+    box-shadow: 0 0 15px rgb(130, 90, 16);
+    background-color: rgba(239, 161, 4, 0.8); /* Yellow color with some transparency */
+    border-radius: 50%; /* Make it a solid circle */
+    transform: translate(-50%, -50%);
+    pointer-events: none; /* Ensure it doesn't interfere with clicks */
+}
+
 /* Futuristic Theme */
 body.futuristic-theme {
     background-color: #1a1a1a; /* Dark, sleek background */
@@ -128,6 +187,19 @@ body.futuristic-theme .square.highlight::before {
     transform: translate(-50%, -50%); /* Center the circle */
     z-index: 1; /* Ensure it appears above the square */
     pointer-events: none; /* Prevent interaction with the circle */
+}
+
+/* Glowing effect for files and ranks labels in Futuristic Theme */
+body.futuristic-theme .files-labels, 
+body.futuristic-theme .ranks-labels {
+    color: #00ff00; /* Neon green text */
+    text-shadow: 0 0 8px rgba(0, 255, 0, 0.8), 0 0 12px rgba(0, 255, 0, 0.6); /* Neon glow effect */
+}
+
+body.futuristic-theme .files-labels div, 
+body.futuristic-theme .ranks-labels div {
+    text-align: center;
+    line-height: 1;
 }
 
 
@@ -343,6 +415,12 @@ body.futuristic-theme .square.highlight::before {
 
 /* Responsive adjustments */
 @media (max-width: 640px) {
+
+    body.futuristic-theme .files-labels div, 
+    body.futuristic-theme .ranks-labels div {
+        font-size: 0.8rem;
+    }
+
     #moveHistoryTextarea {
         height: 250px; /* Reduce height on smaller screens */
         max-width: 250px; /* Reduce width on smaller screens */
@@ -405,6 +483,12 @@ body.futuristic-theme .square.highlight::before {
 }
 
 @media (max-width: 480px) {
+
+    body.futuristic-theme .files-labels div, 
+    body.futuristic-theme .ranks-labels div {
+        font-size: 0.6rem;
+    }
+
     #moveHistoryTextarea {
         height: 200px; /* Further reduce height on very small screens */
         max-width: 200px; /* Further reduce width on very small screens */

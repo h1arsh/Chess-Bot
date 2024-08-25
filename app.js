@@ -103,6 +103,10 @@ io.on("connection", (uniquesocket) => {
         }
     });
 
+    uniquesocket.on("resignGame", () => {
+        uniquesocket.emit("gameover", "You resigned. The AI wins.");
+    });
+
     uniquesocket.on("resetGame", () => {
         chess.reset();
         white_time = 600;
@@ -116,6 +120,7 @@ io.on("connection", (uniquesocket) => {
         console.log("Player disconnected");
         clearInterval(intervalID);
     });
+    
 });
 
 const getBestMoveFromAI = async (fen, depth, retries = 3) => {
