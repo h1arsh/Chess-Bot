@@ -148,11 +148,12 @@ function handleDrop(e, rowIndex, colIndex) {
     removeHighlightFromAllSquares();
 
     if (isPawnPromotion(move)) {
-        showPromotionUI(move, (promotion) => {
+        setTimeout(() => {showPromotionUI(move, (promotion) => {
             move.promotion = promotion;
             sounds.promote.play();
             makeMove(move);
         });
+    },100);
     } else {
         if (chess.move(move)) {
             makeMove(move);
@@ -309,10 +310,15 @@ function showPromotionUI(move, callback) {
 }
 
 function positionPromotionUI(target) {
-    const targetSquare = document.querySelector(`.square[data-row="${8 - parseInt(target[1], 10)}"][data-col="${target.charCodeAt(0) - 97}"]`);
-    const rect = targetSquare.getBoundingClientRect();
-    promotionUI.style.top = `${rect.top + window.scrollY + rect.height / 2 - 70}px`;
-    promotionUI.style.left = `${rect.left + window.scrollX + rect.width / 2}px`;
+    const targetSquare = document.querySelector(
+        `.square[data-row="${8 - parseInt(move.to[1], 10)}"][data-col="${move.to.charCodeAt(0) - 97}"]`
+    );
+    const targetSquareRect = targetSquare.getBoundingClientRect();
+
+    // Set the promotion UI style for direct square overlay
+    promotionUI.style.position = 'absolute';
+    promotionUI.style.top = `${targetSquareRect.top + window.scrollY}px`;
+    promotionUI.style.left = `${targetSquareRect.left + window.scrollX}px`;
 }
 
 function getPieceImage(piece) {
