@@ -239,12 +239,12 @@ async function handleAIMove() {
     const aiMove = await getBestMoveFromAI(fen, window.selectedDepth); // Pass the selected depth
 }
 
-const getBestMoveFromAI = async (fen, depth) => {
+const getBestMoveFromAI = async (fen, depth, retries = 3) => {
     try {
         const response = await axios.get('https://stockfish.online/api/s/v2.php', {
             params: {
                 fen: fen,
-                depth: depth,  // Use the selected depth value
+                depth: depth,
             },
         });
 
@@ -252,14 +252,27 @@ const getBestMoveFromAI = async (fen, depth) => {
             const bestMove = response.data.bestmove.split(' ')[1];
             return bestMove;
         } else {
-            console.error("Stockfish API did not return a successful response");
-            return null;
+            console.error("Stockfish API did not return a successful response", response.data);
+            if (retries > 0) {
+                console.log(`Retrying... Attempts left: ${retries}`);
+                return await getBestMoveFromAI(fen, depth, retries - 1);
+            } else {
+                console.error("No more retries left for the Stockfish API");
+                return null;
+            }
         }
     } catch (err) {
         console.error("Error getting AI move:", err);
-        return null;
+        if (retries > 0) {
+            console.log(`Retrying... Attempts left: ${retries}`);
+            return await getBestMoveFromAI(fen, depth, retries - 1);
+        } else {
+            console.error("No more retries left for the Stockfish API");
+            return null;
+        }
     }
 };
+
 
 function playSoundForMove(move) {
     if (move.flags.includes('c')) {

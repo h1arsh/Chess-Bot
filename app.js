@@ -100,7 +100,11 @@ io.on("connection", (uniquesocket) => {
             } else {
                 console.error("AI made an illegal move");
             }
+        } else {
+            console.error("Failed to get a move from Stockfish AI after retries.");
+            uniquesocket.emit("gameover", "AI could not complete its move. Game over.");
         }
+        
     });
 
     uniquesocket.on("resignGame", () => {
